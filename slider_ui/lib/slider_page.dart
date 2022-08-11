@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:slider_ui/blurred_image.dart';
 import 'package:slider_ui/consts.dart';
 
 class SliderPage extends StatefulWidget {
@@ -10,13 +12,11 @@ class SliderPage extends StatefulWidget {
 }
 
 class _SliderPageState extends State<SliderPage> {
-  final PageController _sliderController = PageController(
-    initialPage: 0,
-    keepPage: true,
-  );
+  final PageController _pageController = PageController(initialPage: 0);
+  final PageController _backgroundPageController = PageController(initialPage: 0);
   @override
   void dispose() {
-    _sliderController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -27,20 +27,28 @@ class _SliderPageState extends State<SliderPage> {
   final int _sliderCount = _images.length;
   int _sliderNow = 0;
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SizedBox(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height,
-            child: Image.network(
-              _images[_sliderNow],
-              fit: BoxFit.fill,
-              opacity: const AlwaysStoppedAnimation(0.2),
-            )),
+        _background(context),
         Scaffold(backgroundColor: Colors.transparent, appBar: _appBar(), body: _body(context)),
       ],
     );
+  }
+
+  SizedBox _background(BuildContext context) {
+    return SizedBox(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        child: PageView.builder(
+            controller: _backgroundPageController,
+            itemCount: _images.length,
+            itemBuilder: (context, index) => BlurredImage(shrinkFactor: .2, imageUrl: _images[index], opacity: .2)));
   }
 
   Column _body(BuildContext context) {
@@ -91,12 +99,13 @@ class _SliderPageState extends State<SliderPage> {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * 0.2,
       child: PageView.builder(
-        physics: const BouncingScrollPhysics(),
+        allowImplicitScrolling: true,
         itemCount: _sliderCount,
-        controller: _sliderController,
+        controller: _pageController,
         onPageChanged: (index) {
           setState(() {
             _sliderNow = index;
+            _backgroundPageController.jumpToPage(_sliderNow);
           });
         },
         itemBuilder: (context, index) {
@@ -105,7 +114,7 @@ class _SliderPageState extends State<SliderPage> {
             height: MediaQuery.of(context).size.height * 0.2,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              image: DecorationImage(fit: BoxFit.fill, image: Image.network(_images[_sliderNow]).image),
+              image: DecorationImage(fit: BoxFit.fill, image: CachedNetworkImageProvider(_images[index])),
             ),
           );
         },
