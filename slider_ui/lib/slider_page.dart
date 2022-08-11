@@ -43,7 +43,7 @@ class _SliderPageState extends State<SliderPage> {
 
   SizedBox _background(BuildContext context) {
     return SizedBox(
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: PageView.builder(
             controller: _backgroundPageController,
