@@ -48,7 +48,7 @@ class _SliderPageState extends State<SliderPage> {
         child: PageView.builder(
             controller: _backgroundPageController,
             itemCount: _images.length,
-            itemBuilder: (context, index) => BlurredImage(shrinkFactor: .2, imageUrl: _images[index], opacity: .2)));
+            itemBuilder: (context, index) => BlurredImage(shrinkFactor: 20, imageUrl: _images[index], opacity: .2)));
   }
 
   Column _body(BuildContext context) {
